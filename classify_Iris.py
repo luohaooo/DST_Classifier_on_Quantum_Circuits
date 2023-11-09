@@ -164,7 +164,7 @@ def traning_testing(training_set, testing_set, components_num, shots):
             classification_result = decision_making(combined_BPA)
             if  classification_result != ii:
                 error_num += 1
-                print(classification_result, ii)
+                # print(classification_result, ii)
     accuracy = 1 - error_num/testing_num
     return accuracy
 
@@ -191,10 +191,11 @@ for train_ratio in [0.3,0.4,0.5,0.6,0.7,0.8,0.9]:
     m = 4 # attribute
     n = 3 # types
 
-    # Monte Carlo experiments
+    # Monte Carlo experiments 
     N = 100
-    accuracy_record = [[] for ii in range(N)]
-    for ii in range(N):
+    accuracy_record = [0 for ii in range(N)]
+    for iternum in range(N):
+        # print(train_ratio, iternum)
         # save training and testing data
         training_set = [[[] for col in range(m)] for row in range(n)]
         testing_set = [[] for row in range(n)]
@@ -206,7 +207,7 @@ for train_ratio in [0.3,0.4,0.5,0.6,0.7,0.8,0.9]:
             for jj in range(m):
                 training_set[ii][jj] = x[0][:,jj]
 
-        accuracy_record[ii] = traning_testing(training_set, testing_set, 3, 1024) 
+        accuracy_record[iternum] = traning_testing(training_set, testing_set, 3, 1024) 
     mean_accuracy = np.mean(accuracy_record)
     print (mean_accuracy, train_ratio)
     
