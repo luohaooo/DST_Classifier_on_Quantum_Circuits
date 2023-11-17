@@ -4,7 +4,10 @@ from sklearn.mixture import GaussianMixture
 from qiskit import QuantumCircuit
 from qiskit import Aer, transpile
 import math
+from classical import combine_BPAS_classical
 
+import warnings
+warnings.filterwarnings('ignore')
 
 # divide data into train_data and test_data
 def train_test(all_data, train_ratio):
@@ -149,24 +152,6 @@ def decision_making(BPA):
     return prob.index(max(prob))
 
 # Experiments
-def traning_testing(training_set, testing_set, components_num, shots):
-    testing_num = 0
-    error_num = 0
-    types_num = len(testing_set)
-
-    weights, means, covariances = learn_GMM_coefficients(training_set, components_num)
-     
-    for ii in range(types_num):
-        testing_num += len(testing_set[ii])
-        for testing_data in testing_set[ii]:
-            BPA, alphas = generate_BPAs(testing_data, weights, means, covariances)
-            combined_BPA = combineBPAs_quantum(alphas, shots)
-            classification_result = decision_making(combined_BPA)
-            if  classification_result != ii:
-                error_num += 1
-                # print(classification_result, ii)
-    accuracy = 1 - error_num/testing_num
-    return accuracy
 
 
 # Input data processing
@@ -187,13 +172,25 @@ for item in raw_data:
         pro_data[2].append(pro_item)
 pro_data = np.array(pro_data)
 
-for train_ratio in [0.3,0.4,0.5,0.6,0.7,0.8,0.9]:
+
+components_num = 3
+train_ratio_list = [0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+
+mean_accuracy_quantum_32 = [0 for i in range(len(train_ratio_list))]
+mean_accuracy_classical = [0 for i in range(len(train_ratio_list))]
+
+for k in range(len(train_ratio_list)):
+    train_ratio = train_ratio_list[k]
+
     m = 4 # attribute
     n = 3 # types
 
     # Monte Carlo experiments 
     N = 100
-    accuracy_record = [0 for ii in range(N)]
+
+    accuracy_record_quantum_32 = [0 for ii in range(N)]
+    accuracy_record_classical = [0 for ii in range(N)]
+
     for iternum in range(N):
         # print(train_ratio, iternum)
         # save training and testing data
@@ -207,7 +204,38 @@ for train_ratio in [0.3,0.4,0.5,0.6,0.7,0.8,0.9]:
             for jj in range(m):
                 training_set[ii][jj] = x[0][:,jj]
 
-        accuracy_record[iternum] = traning_testing(training_set, testing_set, 3, 1024) 
-    mean_accuracy = np.mean(accuracy_record)
-    print (mean_accuracy, train_ratio)
-    
+
+        testing_num = 0
+        error_num_quantum_32 = 0
+        error_num_classical = 0
+
+        types_num = len(testing_set)
+
+        weights, means, covariances = learn_GMM_coefficients(training_set, components_num)
+        
+        for ii in range(types_num):
+            testing_num += len(testing_set[ii])
+            for testing_data in testing_set[ii]:
+                BPA, alphas = generate_BPAs(testing_data, weights, means, covariances)
+                # quantum: 32 shots
+                combined_BPA_quantum_32 = combineBPAs_quantum(alphas, 32)
+                classification_result_quantum_32 = decision_making(combined_BPA_quantum_32)
+                if  classification_result_quantum_32 != ii:
+                    error_num_quantum_32 += 1
+                # classical
+                combined_BPA_classical = combine_BPAS_classical(BPA)
+                classification_result_classical = decision_making(combined_BPA_classical)
+                if  classification_result_classical != ii:
+                    error_num_classical += 1
+                
+        accuracy_record_quantum_32[iternum] = 1 - error_num_quantum_32/testing_num
+        accuracy_record_classical[iternum] = 1 - error_num_classical/testing_num
+
+    mean_accuracy_quantum_32[k] = np.mean(accuracy_record_quantum_32)
+    mean_accuracy_classical[k] = np.mean(accuracy_record_classical)
+
+
+print("Quantum 32")
+print (mean_accuracy_quantum_32, train_ratio)
+print("Classical")
+print (mean_accuracy_classical, train_ratio)
