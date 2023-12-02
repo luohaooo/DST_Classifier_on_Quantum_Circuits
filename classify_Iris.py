@@ -4,8 +4,8 @@ from sklearn.mixture import GaussianMixture
 from qiskit import QuantumCircuit
 from qiskit import Aer, transpile
 import math
-from classical import combine_BPAS_classical
 import matplotlib.pyplot as plt
+from classical import combine_BPAS_classical
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -177,23 +177,27 @@ pro_data = np.array(pro_data)
 components_num = 3
 train_ratio_list = np.array([0.3,0.4,0.5,0.6,0.7,0.8,0.9])
 
-mean_accuracy_quantum_32 = np.array([0 for i in range(len(train_ratio_list))])
-mean_accuracy_classical = np.array([0 for i in range(len(train_ratio_list))])
+mean_accuracy_quantum_32 = np.empty_like(train_ratio_list)
+mean_accuracy_quantum_1024 = np.empty_like(train_ratio_list)
+mean_accuracy_classical = np.empty_like(train_ratio_list)
 
 for k in range(len(train_ratio_list)):
     train_ratio = train_ratio_list[k]
-    print(train_ratio)
+    print("Train Ratio: "+ str(train_ratio))
 
     m = 4 # attribute
     n = 3 # types
 
     # Monte Carlo experiments 
-    N = 1
+    N = 100
 
-    accuracy_record_quantum_32 = [0 for ii in range(N)]
-    accuracy_record_classical = [0 for ii in range(N)]
+    accuracy_record_quantum_32 = np.zeros(N)
+    accuracy_record_quantum_1024 = np.zeros(N)
+    accuracy_record_classical = np.zeros(N)
 
     for iternum in range(N):
+        if iternum % 10 == 0:
+            print("Iteration number: "+str(iternum))
         # print(train_ratio, iternum)
         # save training and testing data
         training_set = [[[] for col in range(m)] for row in range(n)]
@@ -209,6 +213,7 @@ for k in range(len(train_ratio_list)):
 
         testing_num = 0
         error_num_quantum_32 = 0
+        error_num_quantum_1024 = 0
         error_num_classical = 0
 
         types_num = len(testing_set)
@@ -219,11 +224,19 @@ for k in range(len(train_ratio_list)):
             testing_num += len(testing_set[ii])
             for testing_data in testing_set[ii]:
                 BPA, alphas = generate_BPAs(testing_data, weights, means, covariances)
+            
                 # quantum: 32 shots
                 combined_BPA_quantum_32 = combineBPAs_quantum(alphas, 32)
                 classification_result_quantum_32 = decision_making(combined_BPA_quantum_32)
                 if  classification_result_quantum_32 != ii:
                     error_num_quantum_32 += 1
+
+                # quantum: 1024 shots
+                combined_BPA_quantum_1024 = combineBPAs_quantum(alphas, 1024)
+                classification_result_quantum_1024 = decision_making(combined_BPA_quantum_1024)
+                if  classification_result_quantum_1024 != ii:
+                    error_num_quantum_1024 += 1
+                
                 # classical
                 combined_BPA_classical = combine_BPAS_classical(BPA)
                 classification_result_classical = decision_making(combined_BPA_classical)
@@ -231,31 +244,29 @@ for k in range(len(train_ratio_list)):
                     error_num_classical += 1
                 
         accuracy_record_quantum_32[iternum] = 1 - error_num_quantum_32/testing_num
+        accuracy_record_quantum_1024[iternum] = 1 - error_num_quantum_1024/testing_num
         accuracy_record_classical[iternum] = 1 - error_num_classical/testing_num
 
     mean_accuracy_quantum_32[k] = np.mean(accuracy_record_quantum_32)
+    mean_accuracy_quantum_1024[k] = np.mean(accuracy_record_quantum_1024)
     mean_accuracy_classical[k] = np.mean(accuracy_record_classical)
 
 
-print("Quantum 32")
-print (mean_accuracy_quantum_32)
-print("Classical")
-print (mean_accuracy_classical)
+fig = plt.figure()
+ax1 = fig.add_subplot(111)
+lns1 = ax1.plot(train_ratio_list, mean_accuracy_classical, 'r', linewidth = 2.0, label = 'Classical')
+ax1.plot(train_ratio_list, mean_accuracy_classical,'o',color = 'r')
+lns2 = ax1.plot(train_ratio_list, mean_accuracy_quantum_32, 'b', linewidth = 2.0, label = 'Quantum (32 shots)')
+ax1.plot(train_ratio_list, mean_accuracy_quantum_32,'b^')
+lns3 = ax1.plot(train_ratio_list, mean_accuracy_quantum_1024, 'indigo', linewidth = 2.0, label = 'Quantum (1024 shots)')
+ax1.plot(train_ratio_list, mean_accuracy_quantum_1024,'>', color = 'indigo')
 
-
-
-# fig = plt.figure()
-# ax1 = fig.add_subplot(111)
-# lns1 = ax1.plot(train_ratio_list, mean_accuracy_classical, 'r', linewidth = 2.0, label = 'Classical')
-# ax1.plot(train_ratio_list, mean_accuracy_classical,'o',color = 'r')
-# lns2 = ax1.plot(train_ratio_list, accuracy_record_quantum_32, 'b', linewidth = 2.0, label = 'Quantum (32 shots)')
-# ax1.plot(train_ratio_list, accuracy_record_quantum_32,'b^')
-
-# lns = lns1+lns2
-# labs = [l.get_label() for l in lns]
-# ax1.legend(lns, labs, loc='lower right')
-# ax1.set_xlim(0.29,0.91)
-# ax1.set_ylim(0.8,0.99)
-# ax1.set_ylabel("Classification Accuracy")
-# ax1.set_xlabel("Proportion of Training Set")
-# plt.title('Iris Data Set')
+lns = lns1+lns2+lns3
+labs = [l.get_label() for l in lns]
+ax1.legend(lns, labs, loc='lower right')
+ax1.set_xlim(0.29,0.91)
+ax1.set_ylim(0.73,0.96)
+ax1.set_ylabel("Classification Accuracy")
+ax1.set_xlabel("Proportion of Training Set")
+plt.title('Iris Data Set')
+plt.savefig('iris.pdf', dpi=400)
