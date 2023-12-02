@@ -5,6 +5,7 @@ from qiskit import QuantumCircuit
 from qiskit import Aer, transpile
 import math
 from classical import combine_BPAS_classical
+import matplotlib.pyplot as plt
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -174,19 +175,20 @@ pro_data = np.array(pro_data)
 
 
 components_num = 3
-train_ratio_list = [0.3,0.4,0.5,0.6,0.7,0.8,0.9]
+train_ratio_list = np.array([0.3,0.4,0.5,0.6,0.7,0.8,0.9])
 
-mean_accuracy_quantum_32 = [0 for i in range(len(train_ratio_list))]
-mean_accuracy_classical = [0 for i in range(len(train_ratio_list))]
+mean_accuracy_quantum_32 = np.array([0 for i in range(len(train_ratio_list))])
+mean_accuracy_classical = np.array([0 for i in range(len(train_ratio_list))])
 
 for k in range(len(train_ratio_list)):
     train_ratio = train_ratio_list[k]
+    print(train_ratio)
 
     m = 4 # attribute
     n = 3 # types
 
     # Monte Carlo experiments 
-    N = 100
+    N = 1
 
     accuracy_record_quantum_32 = [0 for ii in range(N)]
     accuracy_record_classical = [0 for ii in range(N)]
@@ -236,6 +238,24 @@ for k in range(len(train_ratio_list)):
 
 
 print("Quantum 32")
-print (mean_accuracy_quantum_32, train_ratio)
+print (mean_accuracy_quantum_32)
 print("Classical")
-print (mean_accuracy_classical, train_ratio)
+print (mean_accuracy_classical)
+
+
+
+# fig = plt.figure()
+# ax1 = fig.add_subplot(111)
+# lns1 = ax1.plot(train_ratio_list, mean_accuracy_classical, 'r', linewidth = 2.0, label = 'Classical')
+# ax1.plot(train_ratio_list, mean_accuracy_classical,'o',color = 'r')
+# lns2 = ax1.plot(train_ratio_list, accuracy_record_quantum_32, 'b', linewidth = 2.0, label = 'Quantum (32 shots)')
+# ax1.plot(train_ratio_list, accuracy_record_quantum_32,'b^')
+
+# lns = lns1+lns2
+# labs = [l.get_label() for l in lns]
+# ax1.legend(lns, labs, loc='lower right')
+# ax1.set_xlim(0.29,0.91)
+# ax1.set_ylim(0.8,0.99)
+# ax1.set_ylabel("Classification Accuracy")
+# ax1.set_xlabel("Proportion of Training Set")
+# plt.title('Iris Data Set')
