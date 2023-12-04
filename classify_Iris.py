@@ -186,12 +186,13 @@ for k in range(len(train_ratio_list)):
     n = 3 # types
 
     # Monte Carlo experiments 
-    N = 100
+    N = 10
 
     accuracy_record_quantum_32 = [0 for ii in range(N)]
     accuracy_record_classical = [0 for ii in range(N)]
 
     for iternum in range(N):
+        print(iternum)
         # print(train_ratio, iternum)
         # save training and testing data
         training_set = [[[] for col in range(m)] for row in range(n)]
@@ -236,6 +237,6 @@ for k in range(len(train_ratio_list)):
 
 
 print("Quantum 32")
-print (mean_accuracy_quantum_32, train_ratio)
+print (mean_accuracy_quantum_32)
 print("Classical")
-print (mean_accuracy_classical, train_ratio)
+print (mean_accuracy_classical)
