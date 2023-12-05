@@ -4,9 +4,9 @@ import numpy as np
 def train_test(all_data, train_ratio):
     train_len = round(len(all_data)*train_ratio)
     np.random.shuffle(all_data)
-    train_data = all_data[0:train_len]
-    test_data = all_data[train_len:len(all_data)]
-    return[train_data,test_data]
+    train_data = np.array(all_data[0:train_len])
+    test_data = np.array(all_data[train_len:len(all_data)])
+    return train_data, test_data
 
 def save_training_testing_data(pro_data, train_ratio):
     n = len(pro_data) # types num
@@ -15,9 +15,9 @@ def save_training_testing_data(pro_data, train_ratio):
     testing_set = [[] for row in range(n)]
     # for each type
     for ii in range(n):
-        x = train_test(pro_data[ii],train_ratio)
-        testing_set[ii] = x[1][:,0:m]
+        train_data, test_data = train_test(pro_data[ii], train_ratio)
+        testing_set[ii] = test_data[:,0:m]
     #     for each attribute
         for jj in range(m):
-            training_set[ii][jj] = x[0][:,jj]
+            training_set[ii][jj] = train_data[:,jj]
     return training_set, testing_set
