@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 
-def plot_figure(title, lower_bound, upper_bound, train_ratio_list, mean_accuracy_classical, mean_accuracy_quantum_32, mean_accuracy_quantum_1024):
+def plot_figure(title, lower_bound, upper_bound, train_ratio_list, mean_accuracy_classical, mean_accuracy_quantum_32, mean_accuracy_quantum_1024, file_name):
 
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
     lns1 = ax1.plot(train_ratio_list, mean_accuracy_classical, 'r', linewidth = 2.0, label = 'Classical')
     ax1.plot(train_ratio_list, mean_accuracy_classical,'o',color = 'r')
-    lns2 = ax1.plot(train_ratio_list, mean_accuracy_quantum_32, 'b', linewidth = 2.0, label = 'Quantum (32 shots)')
+    lns2 = ax1.plot(train_ratio_list, mean_accuracy_quantum_32, 'b', linewidth = 2.0, label = 'Quantum (32768 shots)')
     ax1.plot(train_ratio_list, mean_accuracy_quantum_32,'b^')
     lns3 = ax1.plot(train_ratio_list, mean_accuracy_quantum_1024, 'indigo', linewidth = 2.0, label = 'Quantum (1024 shots)')
     ax1.plot(train_ratio_list, mean_accuracy_quantum_1024,'>', color = 'indigo')
@@ -19,4 +19,4 @@ def plot_figure(title, lower_bound, upper_bound, train_ratio_list, mean_accuracy
     ax1.set_ylabel("Classification Accuracy")
     ax1.set_xlabel("Proportion of Training Set")
     plt.title(title)
-    # plt.savefig('iris.pdf', dpi=400)
+    plt.savefig(file_name, dpi=400)

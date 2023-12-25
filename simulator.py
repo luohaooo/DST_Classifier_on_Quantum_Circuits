@@ -40,8 +40,8 @@ def conduct_simulation(pro_data, train_ratio_list, components_num, N):
                 for testing_data in testing_set[ii]:
                     BPA, alphas = generate_BPAs(testing_data, weights, means, covariances)
                 
-                    # quantum: 32 shots
-                    combined_BPA_quantum_32 = combineBPAs_quantum(alphas, 32)
+                    # quantum: 32768 shots
+                    combined_BPA_quantum_32 = combineBPAs_quantum(alphas, 32768)
                     classification_result_quantum_32 = decision_making(combined_BPA_quantum_32)
                     if  classification_result_quantum_32 != ii:
                         error_num_quantum_32 += 1
