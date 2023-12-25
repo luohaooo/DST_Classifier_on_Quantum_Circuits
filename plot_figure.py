@@ -4,12 +4,12 @@ def plot_figure(title, lower_bound, upper_bound, train_ratio_list, mean_accuracy
 
     fig = plt.figure()
     ax1 = fig.add_subplot(111)
-    lns1 = ax1.plot(train_ratio_list, mean_accuracy_classical, 'r', linewidth = 2.0, label = 'Classical')
-    ax1.plot(train_ratio_list, mean_accuracy_classical,'o',color = 'r')
-    lns2 = ax1.plot(train_ratio_list, mean_accuracy_quantum_32, 'b', linewidth = 2.0, label = 'Quantum (32768 shots)')
-    ax1.plot(train_ratio_list, mean_accuracy_quantum_32,'b^')
-    lns3 = ax1.plot(train_ratio_list, mean_accuracy_quantum_1024, 'indigo', linewidth = 2.0, label = 'Quantum (1024 shots)')
-    ax1.plot(train_ratio_list, mean_accuracy_quantum_1024,'>', color = 'indigo')
+
+    lns1 = ax1.plot(train_ratio_list, mean_accuracy_classical, '-or', linewidth = 2.0, label = 'Classical')
+    lns2 = ax1.plot(train_ratio_list, mean_accuracy_quantum_32, '-^b', linewidth = 2.0, label = 'Quantum (32768 shots)')
+    lns3 = ax1.plot(train_ratio_list, mean_accuracy_quantum_1024, '->g', linewidth = 2.0, label = 'Quantum (1024 shots)')
+
+    plt.grid(color='gray', linestyle='--', linewidth=0.5)
 
     lns = lns1+lns2+lns3
     labs = [l.get_label() for l in lns]
