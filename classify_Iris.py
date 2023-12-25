@@ -3,6 +3,7 @@ import numpy as np
 from simulator import conduct_simulation
 from plot_figure import plot_figure
 
+
 # Experiments
 
 # Input data processing
@@ -30,10 +31,10 @@ components_num = 3
 train_ratio_list = np.array([0.3,0.4,0.5,0.6,0.7,0.8,0.9])
 
 # Monte Carlo experiments num
-N = 1
+N = 100
 
 # Simulation
 mean_accuracy_classical, mean_accuracy_quantum_32, mean_accuracy_quantum_1024 = conduct_simulation(pro_data, train_ratio_list, components_num, N)
 
 # Plot
-plot_figure("Iris Data Set", 0.73, 0.98, train_ratio_list, mean_accuracy_classical, mean_accuracy_quantum_32, mean_accuracy_quantum_1024)
+plot_figure("Iris Data Set", 0.8, 0.98, train_ratio_list, mean_accuracy_classical, mean_accuracy_quantum_32, mean_accuracy_quantum_1024, "iris.pdf")
